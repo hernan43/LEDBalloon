@@ -1,0 +1,60 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+*.env
+
+# PyInstaller
+*.spec
+dist/
+build/
+
+# Logs and databases
+*.log
+*.sqlite3
+
+# MacOS & Linux
+.DS_Store
+*.swp
+*.swo
+Thumbs.db
+
+# Flask & uploads
+instance/
+*.db
+*.sqlite
+uploads/
+*.bak
+
+# IDEs and editors
+.vscode/
+.idea/
+*.iml
+
+# Python package files
+*.egg
+*.egg-info/
+dist/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Testing and coverage
+.coverage
+htmlcov/
+*.pytest_cache/
+.cache/
+
+# Docker (if you decide to containerize later)
+docker-compose.override.yml
+.dockerignore
+
+# Local environment config
+.env
+*.ini
+*.cfg
+
