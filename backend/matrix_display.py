@@ -23,13 +23,14 @@ GIF_DIR = "/opt/gifs"
 current_gif = None
 stop_event = threading.Event()
 
-def display_gif(gif_path, frame_delay=0.10, forced_loops=2):
+def display_gif(gif_path, forced_loops=2):
     """Displays a GIF frame by frame on the LED matrix."""
     global current_gif
     current_gif = os.path.basename(gif_path)
 
     try:
         with Image.open(gif_path) as gif:
+            frame_delay = gif.info.get('duration', 100) / 1000
 
             gif_loop_count = gif.info.get("loop", 1)
             if gif_loop_count == 0:
@@ -128,6 +129,9 @@ def create_wavy_clock_frame(width, height, frame):
     return image
 
 def display_wavy_clock(interval=10, frame_time=0.03):
+    global current_gif
+    current_gif = "wavy clock"
+
     frame = 0
     start_time = time.time()
 

@@ -17,5 +17,9 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: system-ui;
+}
+
+.current-gif {
+  margin-bottom: 10px;
 }
