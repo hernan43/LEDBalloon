@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react';
+import UploadGif from '@/app/components/UploadGif';
 
 export default function Home() {
 
@@ -50,13 +51,12 @@ export default function Home() {
     if (isConfirmed) {
       try {
         // Call the DELETE endpoint in your API to delete the GIF
-        const response = await fetch(`http://blinken.local:5050/delete-gif/${gif}`, {
+        const response = await fetch(`http://blinken.local:5050/delete/${gif}`, {
           method: 'DELETE',
         });
 
         if (response.ok) {
-          alert(`GIF "${gif}" deleted successfully.`);
-          setGifs(gifs.filter(gif => gif !== gifName));
+          setGifs(gifs.filter(gifName => gifName !== gif));
         } else {
           alert(`Failed to delete "${gif}".`);
         }
@@ -95,11 +95,16 @@ export default function Home() {
           </div>
         </div>
 
+        <div className="top-uploader flex flex-col items-center gap-4">
+            <UploadGif />
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {gifList}
         </div>
       </main>
       <footer className="">
+        <UploadGif />
       </footer>
     </div>
   );

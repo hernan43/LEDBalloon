@@ -30,7 +30,8 @@ def display_gif(gif_path, forced_loops=2):
 
     try:
         with Image.open(gif_path) as gif:
-            frame_delay = gif.info.get('duration', 100) / 1000
+            # frame duration is in ms
+            frame_delay = gif.info.get('duration', 200) / 1000
 
             gif_loop_count = gif.info.get("loop", 1)
             if gif_loop_count == 0:
@@ -97,34 +98,46 @@ def create_wavy_clock_frame(width, height, frame):
     image = Image.new("RGB", (width, height), "black")
     draw = ImageDraw.Draw(image)
 
-    # Load a font
+    # Load fonts
     font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
-    font_size = 24  # Adjust font size for better fit
-    font = ImageFont.truetype(font_path, font_size)
+    time_font_size = 18
+    date_font_size = 10
+    time_font = ImageFont.truetype(font_path, time_font_size)
+    date_font = ImageFont.truetype(font_path, date_font_size)
 
-    # Get the current time
-    current_time = time.strftime("%H:%M:%S")
+    # Get the current time and date
+    current_time = time.strftime("%-I:%M %p")
+    current_date = time.strftime("%a, %b %d, %Y")
 
-    # Fixed spacing between characters
-    char_spacing = 1  # Adjust spacing as needed
+    # Spacing
+    time_char_spacing = 0.5
+    date_char_spacing = 0.2  # Smaller spacing for date
 
-    # Compute width manually (fixes missing characters issue)
-    text_width = sum(font.getsize(char)[0] for char in current_time) + (len(current_time) - 1) * char_spacing
+    # Compute width manually
+    time_text_width = sum(time_font.getsize(char)[0] for char in current_time) + (len(current_time) - 1) * time_char_spacing
+    date_text_width = sum(date_font.getsize(char)[0] for char in current_date) + (len(current_date) - 1) * date_char_spacing
 
-    # Center the text horizontally
-    start_x = (width - text_width) // 2
+    # Center both texts horizontally
+    start_x_time = (width - time_text_width) // 2
+    start_x_date = (width - date_text_width) // 2
 
-    # Draw each character with a vertical sine wave effect
-    x = start_x
+    # Calculate vertical positions
+    time_y_center = height // 2 - 20
+    date_y_offset = 24
+
+    # Draw each character of the time and date with the same sine wave offset
     for i, char in enumerate(current_time):
-        offset_y = int(math.sin((frame + i * 2) * 0.2) * 10)  # Wavy motion
-        char_width, char_height = font.getsize(char)
-        char_y = (height // 2) - (char_height // 2) + offset_y
+        offset_y = int(math.sin((frame + i * 2) * 0.2) * 10)
+        char_width, char_height = time_font.getsize(char)
+        char_x = start_x_time + sum(time_font.getsize(current_time[j])[0] + time_char_spacing for j in range(i))
+        draw.text((char_x, time_y_center + offset_y), char, fill="white", font=time_font)
 
-        draw.text((x, char_y), char, fill="white", font=font)
-
-        # Move x forward by character width + spacing
-        x += char_width + char_spacing
+    # Draw the date below the time
+    for i, char in enumerate(current_date):
+        offset_y = int(math.sin((frame + i * 2) * 0.2) * 10)
+        char_width, char_height = date_font.getsize(char)
+        char_x = start_x_date + sum(date_font.getsize(current_date[j])[0] + date_char_spacing for j in range(i))
+        draw.text((char_x, time_y_center + date_y_offset + offset_y), char, fill="#18453b", font=date_font)
 
     return image
 
@@ -164,5 +177,6 @@ def iterate_gifs():
 
         # Show time after completing a full GIF loop
         #display_time()
+        clear_matrix(0.1)
         display_wavy_clock()
 

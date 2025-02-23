@@ -23,3 +23,33 @@ body {
 .current-gif {
   margin-bottom: 10px;
 }
+
+.top-uploader {
+  margin-bottom: 10px;
+}
+
+.upload-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.upload-container input[type="file"] {
+  margin-bottom: 10px;
+}
+
+.upload-container button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+.upload-container button:disabled {
+  background-color: #cccccc;
+}
+
+.upload-container p {
+  margin-top: 10px;
+  font-weight: bold;
+}

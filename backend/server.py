@@ -21,6 +21,21 @@ def allowed_file(filename):
     """Check if the uploaded file is a GIF."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# DELETE endpoint to delete a GIF
+@app.route('/delete/<filename>', methods=['DELETE'])
+def delete_gif(filename):
+    """Delete a specific GIF by filename."""
+    filename = secure_filename(filename)
+    try:
+        gif_path = os.path.join(GIF_DIR, filename)
+        if not os.path.exists(gif_path):
+            return jsonify({"error": f"GIF '{filename}' not found"}), 404
+        
+        os.remove(gif_path)  # Delete the file
+        return jsonify({"message": f"'{filename}' deleted successfully."}), 200
+    except Exception as e:
+        return jsonify({"error": f"Error deleting GIF '{filename}': {str(e)}"}), 500
+
 @app.route('/upload', methods=['POST'])
 def upload():
     """Upload a new GIF to the server and immediately play it."""
