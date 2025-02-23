@@ -23,42 +23,45 @@ GIF_DIR = "/opt/gifs"
 current_gif = None
 stop_event = threading.Event()
 
-def display_gif(gif_path, forced_loops=2):
-    """Displays a GIF frame by frame on the LED matrix."""
+def display_gif(gif_path, forced_loops=1, zero_frame_delay=0.1):
+    """Displays a GIF frame by frame on the LED matrix, honoring each frame's delay."""
     global current_gif
     current_gif = os.path.basename(gif_path)
 
     try:
         with Image.open(gif_path) as gif:
-            # frame duration is in ms
-            frame_delay = gif.info.get('duration', 200) / 1000
-
             gif_loop_count = gif.info.get("loop", 1)
             if gif_loop_count == 0:
                 gif_loop_count = forced_loops
 
             if gif.n_frames < 8:
-                # add more if it is a short one
-                gif_loop_count += forced_loops
+                # Add more loops if it's a short GIF
+                gif_loop_count += 1
 
             for x in range(gif_loop_count):
-                #print(f"Playing {gif_path}({gif.n_frames}) count {x+1}")
-
                 if stop_event.is_set():
                     return
 
-                for frame in ImageSequence.Iterator(gif):
+                for frame_number, frame in enumerate(ImageSequence.Iterator(gif)):
                     if stop_event.is_set():
                         return
+                    
+                    # Get the delay for this frame
+                    frame_delay = frame.info.get('duration', 0) / 1000.0
+                    if frame_delay <= 0:
+                        frame_delay = zero_frame_delay
+
+                    # Prepare the frame
                     frame = frame.convert("RGBA").resize((matrix.width, matrix.height))
                     black_bg = Image.new("RGB", frame.size, (0, 0, 0))
                     frame = Image.alpha_composite(black_bg.convert("RGBA"), frame).convert("RGB")
+                    
+                    # Display the frame
                     matrix.SetImage(frame)
                     time.sleep(frame_delay)
 
                     if stop_event.is_set():
                         return
-
 
     except Exception as e:
         print(f"Error displaying {gif_path}: {e}")
@@ -141,7 +144,7 @@ def create_wavy_clock_frame(width, height, frame):
 
     return image
 
-def display_wavy_clock(interval=10, frame_time=0.03):
+def display_wavy_clock(interval=10, frame_time=0.01):
     global current_gif
     current_gif = "wavy clock"
 
