@@ -23,7 +23,7 @@ GIF_DIR = "/opt/gifs"
 current_gif = None
 stop_event = threading.Event()
 
-def display_gif(gif_path, forced_loops=1, zero_frame_delay=0.1):
+def display_gif(gif_path, forced_loops=1, zero_frame_delay=0.05):
     """Displays a GIF frame by frame on the LED matrix, honoring each frame's delay."""
     global current_gif
     current_gif = os.path.basename(gif_path)
@@ -34,8 +34,11 @@ def display_gif(gif_path, forced_loops=1, zero_frame_delay=0.1):
             if gif_loop_count == 0:
                 gif_loop_count = forced_loops
 
-            if gif.n_frames < 8:
-                # Add more loops if it's a short GIF
+            # Calculate total GIF duration
+            total_duration = sum((frame.info.get('duration', 0) / 1000.0 or zero_frame_delay) for frame in ImageSequence.Iterator(gif))
+
+            # If the total duration is less than 1 second, add an extra loop
+            if total_duration < 1:
                 gif_loop_count += 1
 
             for x in range(gif_loop_count):
