@@ -1,3 +1,4 @@
+import math
 import os
 import threading
 import time
@@ -74,7 +75,7 @@ def display_time(interval=10):
     font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
     font = ImageFont.truetype(font_path, 24)
 
-    for _ in range(interval):  # Show time for 30 seconds
+    for _ in range(interval):  # Show time for interval
         if stop_event.is_set():
             return
 
@@ -90,6 +91,54 @@ def display_time(interval=10):
         matrix.SetImage(image)
 
         time.sleep(1)
+
+def create_wavy_clock_frame(width, height, frame):
+    image = Image.new("RGB", (width, height), "black")
+    draw = ImageDraw.Draw(image)
+
+    # Load a font
+    font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+    font_size = 24  # Adjust font size for better fit
+    font = ImageFont.truetype(font_path, font_size)
+
+    # Get the current time
+    current_time = time.strftime("%H:%M:%S")
+
+    # Fixed spacing between characters
+    char_spacing = 1  # Adjust spacing as needed
+
+    # Compute width manually (fixes missing characters issue)
+    text_width = sum(font.getsize(char)[0] for char in current_time) + (len(current_time) - 1) * char_spacing
+
+    # Center the text horizontally
+    start_x = (width - text_width) // 2
+
+    # Draw each character with a vertical sine wave effect
+    x = start_x
+    for i, char in enumerate(current_time):
+        offset_y = int(math.sin((frame + i * 2) * 0.2) * 10)  # Wavy motion
+        char_width, char_height = font.getsize(char)
+        char_y = (height // 2) - (char_height // 2) + offset_y
+
+        draw.text((x, char_y), char, fill="white", font=font)
+
+        # Move x forward by character width + spacing
+        x += char_width + char_spacing
+
+    return image
+
+def display_wavy_clock(interval=10, frame_time=0.03):
+    frame = 0
+    start_time = time.time()
+
+    while time.time() - start_time < interval:  # Show time for interval
+        if stop_event.is_set():
+            return
+
+        image = create_wavy_clock_frame(matrix.width, matrix.height, frame)
+        matrix.SetImage(image.convert("RGB"))
+        frame += 1
+        time.sleep(frame_time)
 
 def get_current_gif():
     """Returns the currently displayed GIF."""
@@ -110,5 +159,6 @@ def iterate_gifs():
             display_gif(os.path.join(GIF_DIR, gif))
 
         # Show time after completing a full GIF loop
-        display_time()
+        #display_time()
+        display_wavy_clock()
 
