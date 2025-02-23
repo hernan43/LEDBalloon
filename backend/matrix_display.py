@@ -39,7 +39,7 @@ def display_gif(gif_path, frame_delay=0.10, forced_loops=2):
                 gif_loop_count += forced_loops
 
             for x in range(gif_loop_count):
-                print(f"Playing {gif_path}({gif.n_frames}) count {x+1}")
+                #print(f"Playing {gif_path}({gif.n_frames}) count {x+1}")
 
                 if stop_event.is_set():
                     return
@@ -68,6 +68,9 @@ def clear_matrix(delay=0.5):
 
 def display_time(interval=10):
     """Displays the current time on the matrix."""
+    global current_gif
+    current_gif = "clock"
+
     font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
     font = ImageFont.truetype(font_path, 24)
 

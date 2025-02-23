@@ -1,21 +1,34 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
+import logging
 import os
 import matrix_display
 import threading
 
 app = Flask(__name__)
+CORS(app)
 
 # Server configuration
 GIF_DIR = "/opt/gifs"
 app.config['UPLOAD_FOLDER'] = GIF_DIR
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
+logging.getLogger('flask_cors').level = logging.DEBUG
 
 ALLOWED_EXTENSIONS = {'gif'}
 
 def allowed_file(filename):
     """Check if the uploaded file is a GIF."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.after_request
+def apply_cors(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'  # Allows all origins
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, DELETE'  # Allows these methods
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'  # Allow these headers
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
+    return response
 
 @app.route('/upload', methods=['POST'])
 def upload_gif():
